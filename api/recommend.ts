@@ -26,7 +26,7 @@ interface RateLimitInfo {
 const rateLimitMap = new Map<string, RateLimitInfo>();
 
 // Rate Limiting Configuration
-const RATE_LIMIT_PER_MINUTE = 1;
+const RATE_LIMIT_PER_MINUTE = 5;
 const RATE_LIMIT_PER_DAY = 50;
 
 function checkRateLimit(ip: string): boolean {
