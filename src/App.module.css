@@ -1,0 +1,95 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.header {
+  padding: 24px 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.headerBtn {
+  color: var(--color-text-secondary);
+}
+
+.progressWrapper {
+  padding: 0 24px;
+}
+
+.stepText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.stepWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+.loadingWrapper {
+  padding: 24px;
+}
+
+.resultsWrapper {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.resultsTitle {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.resultsIntro {
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+}
+
+.resultsList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.resultsFooter {
+  margin-top: 24px;
+}
+
+.errorWrapper {
+  padding: 24px;
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: red;
+}
+
+.errorDesc {
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+}

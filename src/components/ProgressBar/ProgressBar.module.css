@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  gap: 4px;
+  margin: 20px 0;
+}
+
+.segment {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.active {
+  background-color: var(--color-text-primary);
+}
+
+.inactive {
+  background-color: var(--color-border);
+}
