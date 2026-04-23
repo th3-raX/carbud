@@ -2,7 +2,7 @@
 
 > A guided car buying advisor that takes buyers from "I don't know what to buy" to a confident shortlist — in under 2 minutes.
 
-**Live demo:** [carbud.vercel.app](https://carbud.vercel.app)
+**Live demo:** [https://carbud-three.vercel.app/](https://https://carbud-three.vercel.app/)
 
 ---
 
