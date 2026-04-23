@@ -1,47 +1,140 @@
-# Car Buyer Advisor
+# carbud
 
-A production-ready monorepo boilerplate for a car buying advisor web app, built with React 18, Vite, TypeScript, and a Vercel Serverless API using Groq's LLaMA 3.1 8B instant model.
+> A guided car buying advisor that takes buyers from "I don't know what to buy" to a confident shortlist — in under 2 minutes.
 
-## Tech Stack
-- Frontend: React 18, Vite, TypeScript
-- Backend: Vercel Serverless API Routes (`/api`)
-- AI Model: Groq (`llama-3.1-8b-instant`)
-- Styling: Vanilla CSS
+**Live demo:** [carbud.vercel.app](https://carbud.vercel.app)
 
-## Setup Instructions
+---
 
-1. **Install dependencies:**
-   \`\`\`bash
-   npm install
-   \`\`\`
+## What did you build and why?
 
-2. **Environment Variables:**
-   Create a `.env.local` file at the root of the project with your Groq API key:
-   \`\`\`env
-   GROQ_API_KEY=gsk_your_api_key_here
-   \`\`\`
+The brief was deliberately vague: help a confused car buyer reach a confident shortlist. Most car platforms solve this by adding more data — filters, comparison tables, spec sheets. That makes the problem worse, not better. A buyer who doesn't know what they want can't use a filter panel.
 
-3. **Run Locally:**
-   Use Vercel Dev to run both the frontend and the serverless functions locally:
-   \`\`\`bash
-   npx vercel dev
-   \`\`\`
-   The app will run on `http://localhost:3000`. The Vite server is used under the hood, and API requests will be properly routed to the `api/` directory.
+The real problem is **decision anxiety**, not lack of information. So I built a 4-step preference funnel that collects what actually matters to a buyer (budget, use case, top priority, body type preference) and returns a shortlist of 3 cars with reasoning written specifically for _their_ stated needs — not generic specs.
 
-4. **Build for Production:**
-   \`\`\`bash
-   npm run build
-   \`\`\`
+The key design insight: the AI output is **argumentative, not descriptive**. Instead of "has 6 airbags," it says "given your highway driving and safety priority, the Slavia's 5-star NCAP and 1.5 TSI range makes it hard to beat at this price." That's what builds confidence.
 
-## Deployment
-1. Push the code to a GitHub repository.
-2. Import the repository into your Vercel account.
-3. In the Vercel project settings, add the `GROQ_API_KEY` environment variable.
-4. Deploy!
+### What I deliberately cut
 
-## Project Structure
-- `api/recommend.ts`: Vercel serverless function handling the Groq API call.
-- `src/components/`: Reusable, hand-rolled UI components.
-- `src/steps/`: Wizard steps corresponding to the user flow.
-- `src/hooks/useWizard.ts`: State management hook orchestrating the wizard.
-- `src/styles/`: Global CSS and variables for premium aesthetics.
+| Cut                 | Reason                                                                    |
+| ------------------- | ------------------------------------------------------------------------- |
+| Search and filters  | Front-loads complexity on users who don't yet know what to filter for     |
+| Comparison tables   | Only useful once you have a shortlist — this tool _creates_ the shortlist |
+| User review display | Too much noise at the decision-entry stage                                |
+| Variant breakdowns  | We recommend the right variant instead of overwhelming with options       |
+| More than 3 results | More options = more anxiety. Three is a considered, defensible number     |
+
+The discipline here was **cutting things that would've been easy to add** but would've diluted the core job: get someone from confused to confident.
+
+---
+
+## Tech stack and why
+
+| Layer    | Choice                              | Reason                                                                                                                                      |
+| -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend | React 18 + Vite + TypeScript        | Fast dev server, strong typing for API shapes, industry standard for the target role                                                        |
+| Backend  | Vercel Serverless (`/api` routes)   | Zero-config deployment, API key stays server-side, scales to zero on free tier                                                              |
+| AI       | Groq API (Llama 3.1)                | Generous free tier (14,400 req/day), lowest latency of free options, native `json_object` response mode removes need for markdown-stripping |
+| Styling  | Vanilla CSS + CSS custom properties | No framework overhead, full control, keeps bundle lean                                                                                      |
+| State    | React hooks only                    | No Redux, no Zustand — wizard state is simple enough that `useWizard.ts` handles everything cleanly                                         |
+
+**Why not Next.js?** Vite is faster for a single-page tool with no SSR requirements. The Vercel serverless functions handle the one API route needed, so there was no reason to pull in a full framework.
+
+---
+
+## What did I delegate to AI vs. do manually?
+
+This project was built **entirely through prompting** — no code was written by hand. Every file, config, and implementation detail was generated by AI from structured prompts. The human work was upstream of the code.
+
+### What I owned (prompting + decisions)
+
+- **Product framing** — analysed the brief, identified that the core problem was decision anxiety rather than lack of data, and decided what to build and what to cut before any prompting began
+- **UX flow design** — designed the 4-step question sequence, chose what each step asks, and decided that 3 results was the right output (not 5, not 10)
+- **Prompt architecture** — wrote the detailed prompts that produced the boilerplate, the component structure, the Vercel config, the Groq system prompt, and this README. The quality of the output was entirely dependent on the specificity of the input
+- **QA and flow testing** — manually tested the full wizard flow end-to-end, identified broken states and edge cases, and prompted fixes
+- **Security hardening** — identified misuse vectors (prompt injection via user inputs, API abuse) and prompted specific mitigations: input sanitisation on the serverless function, rate limiting at 5 requests/minute and 50 requests/day per IP
+- **Stack decisions** — chose Vite over Next.js, Groq over other free-tier options, vanilla CSS over Tailwind. These were deliberate calls made before prompting, not defaults accepted from AI suggestions
+
+### Where AI tools helped most
+
+**Translating decisions into working code instantly** was the biggest unlock. Normally the gap between "I know what I want to build" and "I have a running app" is hours of scaffolding. With precise prompts, that gap collapsed to minutes — full TypeScript types, serverless function, component skeletons, Vercel config, and a working API integration were production-ready on the first or second iteration.
+
+The **security layer** was also faster than expected. Describing the threat model (prompt injection, rate abuse) in plain language and asking for mitigations produced correct, specific implementations — input length limits, pattern blocking, in-memory rate limiting with IP keying — without needing to research the implementation details manually.
+
+### Where they got in the way
+
+**Styling defaults were wrong.** AI generated inline styles for every component — `style={{ fontSize: 14, color: '#6b6b6b' }}` scattered across JSX. That's hard to maintain and not how a real codebase is structured. Had to explicitly prompt it to strip all inline styles and replace them with CSS Modules, which it did correctly on the follow-up but shouldn't have needed prompting in the first place.
+
+**Folder structure was flat when it shouldn't be.** Components and their CSS Module files were dumped into a single `/components` folder with no separation — `OptionCard.tsx`, `OptionCard.module.css`, `ResultCard.tsx`, `ResultCard.module.css` all siblings at the same level. For a small project this is tolerable, but it doesn't reflect how a real component library or design system is structured. Prompted a reorganisation to colocate each component in its own subfolder (`/components/OptionCard/index.tsx` + `OptionCard.module.css`), which required a second pass and import path updates across the project.
+
+The pattern in both cases: **AI optimises for "works" over "maintainable."** It produces code that runs correctly but reflects no particular architectural opinion unless you specify one. The prompt has to encode your standards explicitly — the AI won't infer them from context.
+
+---
+
+## If I had another 4 hours, I would add
+
+**1. Real car dataset (highest value)**
+Right now the AI draws on its training data. Injecting a structured JSON dataset of 50–100 Indian cars (make, model, variant, ex-showroom price, mileage, NCAP rating, service network score) into the Groq prompt would make recommendations factually grounded and auditable. This is the single most important production upgrade.
+
+**2. "Why not" explanations**
+For each of the 3 recommended cars, show one honest trade-off: "The downside: tighter rear legroom than the Creta." This builds more trust than a purely positive shortlist.
+
+**3. Shareable results**
+A `/result/[id]` route that serialises the buyer profile and recommendations into a URL, so buyers can share their shortlist with family before deciding. Low implementation cost, high real-world value.
+
+**4. Dealer lead capture**
+An optional "Get quotes from dealers near you" CTA at the results stage — one input (phone number), no form. This is the monetisation hook that makes the product commercially viable.
+
+**5. Follow-up chat**
+A simple chat input below the shortlist: "What if I stretch my budget by ₹2 lakh?" — passes the current profile + results as context for a follow-up Groq call. Turns a one-shot advisor into a conversation.
+
+**6. Shortlist and advice history**
+Currently every session is stateless — closing the tab loses the recommendations permanently. A history feature would persist each shortlist (buyer profile + 3 results) to a lightweight store (Vercel KV or localStorage for a client-only version), letting buyers revisit past sessions, compare across different budget or use case combinations, and share a link with family before making a decision. For a car purchase — which most people research over days, not minutes — this is a significant usability gap.
+
+---
+
+## Local setup
+
+```bash
+# Clone the repo
+git clone https://github.com/your-username/carbud.git
+cd carbud
+
+# Install dependencies
+npm install
+
+# Add your Groq API key
+echo "GROQ_API_KEY=your-key-here" > .env.local
+
+# Run locally
+npm run dev
+```
+
+Get a free Groq API key at [console.groq.com](https://console.groq.com).
+
+## Deploying to Vercel
+
+1. Push to GitHub
+2. Import repo at [vercel.com/new](https://vercel.com/new)
+3. Add `GROQ_API_KEY` under **Environment Variables**
+4. Deploy — every subsequent `git push main` redeploys automatically
+
+---
+
+## Project structure
+
+```
+/
+├── api/
+│   └── recommend.ts        # Serverless function — Groq API call, key stays here
+├── src/
+│   ├── components/         # ProgressBar, OptionCard, BudgetSlider, ResultCard, LoadingState
+│   ├── steps/              # StepBudget, StepUseCase, StepPriority, StepBodyType
+│   ├── hooks/
+│   │   └── useWizard.ts    # All wizard state — step, answers, loading, results
+│   ├── types/index.ts      # BuyerProfile, RecommendRequest, RecommendResponse
+│   ├── styles/             # global.css, variables.css
+│   └── App.tsx
+├── .env.local              # GROQ_API_KEY (never committed)
+└── vercel.json
+```
